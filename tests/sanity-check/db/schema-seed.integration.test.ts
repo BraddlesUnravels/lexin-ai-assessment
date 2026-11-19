@@ -379,6 +379,22 @@ describe('Material Register PostgreSQL schema and seed', () => {
     expect(generateSeedData()).toEqual(generateSeedData());
   });
 
+  it('should seed names and descriptions without synthetic labels', async () => {
+    const result = await pool.query<{ labelled: number; benchpro: number }>(
+      `select
+         count(*) filter (
+           where description ilike '%(synthetic)%'
+              or manufacturer_name ilike '%(synthetic)%'
+         )::int as labelled,
+         count(*) filter (
+           where manufacturer_name = 'BenchPro Tools'
+         )::int as benchpro
+       from materials`,
+    );
+    expect(result.rows[0]?.labelled).toBe(0);
+    expect(result.rows[0]?.benchpro).toBeGreaterThan(0);
+  });
+
   it('should preserve fixture balances and return an ordinary multi-page bearing search', async () => {
     const bearingResult = await pool.query<{
       material_number: string;

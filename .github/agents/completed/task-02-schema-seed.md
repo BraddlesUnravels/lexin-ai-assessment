@@ -15,6 +15,7 @@
 
 ## Review and verification
 
+- **Feedback refinement** Removed `(Synthetic)` from generated manufacturer names as requested. Fresh seeds use the revised names; existing rows are deliberately preserved on seed reruns.
 - **Review outcomes** Request and exact-SHA approval status are tracked in the shared Task 2 scratchpad.
 - **Checks so far** `npm run db:generate` generated the initial migration and later reported no schema changes. After the developer's bearing clarification, API/UI typechecks, lint, formatting, and `npm run test:unit` pass (2 files, 7 tests), and the complete `task ci` gate passes. Exact candidate SHA and review status are tracked in the shared Task 2 scratchpad. The final fresh PostgreSQL volume contains four plants, 5,000 materials (3,000 Spare Part, 1,100 Consumable, 500 Raw Material, 400 Tool), 11,938 balances, no unassigned materials, and all five units. Final plant distribution is Melbourne 4,178 (35.00%), Sydney 3,581 (30.00%), Brisbane 2,985 (25.00%), Perth 1,194 (10.00%).
 - **Fixture evidence** `MAT-000123` stores SKF `6205-2RS1`, `19.95`, Brisbane `12.000`, Melbourne `28.000`, Sydney `0.000`, no Perth row, total `40.000`. `MAT-000124` has null price, Brisbane `0.100`, Melbourne `0.200`, total `0.300`. With no generated bearing special treatment, the positive-stock combined Brisbane bearing filter matches 567 materials (23 pages at 25/page).

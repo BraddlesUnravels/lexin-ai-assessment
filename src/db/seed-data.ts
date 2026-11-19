@@ -73,7 +73,7 @@ const BEARING_DIMENSIONS = [
 
 const DEEP_GROOVE_BEARINGS: ProductFamily = {
   code: 'DGB',
-  manufacturerName: 'Apex Motion (Synthetic)',
+  manufacturerName: 'Apex Motion',
   materialType: 'Spare Part',
   units: ['EA'],
   minPriceCents: 850,
@@ -93,7 +93,7 @@ const SPARE_PART_FAMILIES: readonly ProductFamily[] = [
   DEEP_GROOVE_BEARINGS,
   {
     code: 'TRB',
-    manufacturerName: 'Southern Bearings (Synthetic)',
+    manufacturerName: 'Southern Bearings',
     materialType: 'Spare Part',
     units: ['EA'],
     minPriceCents: 1_200,
@@ -106,7 +106,7 @@ const SPARE_PART_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'HSG',
-    manufacturerName: 'Apex Motion (Synthetic)',
+    manufacturerName: 'Apex Motion',
     materialType: 'Spare Part',
     units: ['EA'],
     minPriceCents: 2_500,
@@ -119,7 +119,7 @@ const SPARE_PART_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'BLT',
-    manufacturerName: 'DriveLine Works (Synthetic)',
+    manufacturerName: 'DriveLine Works',
     materialType: 'Spare Part',
     units: ['EA'],
     minPriceCents: 650,
@@ -132,7 +132,7 @@ const SPARE_PART_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'CHN',
-    manufacturerName: 'DriveLine Works (Synthetic)',
+    manufacturerName: 'DriveLine Works',
     materialType: 'Spare Part',
     units: ['M'],
     minPriceCents: 1_100,
@@ -145,7 +145,7 @@ const SPARE_PART_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'SPK',
-    manufacturerName: 'DriveLine Works (Synthetic)',
+    manufacturerName: 'DriveLine Works',
     materialType: 'Spare Part',
     units: ['EA'],
     minPriceCents: 1_400,
@@ -158,7 +158,7 @@ const SPARE_PART_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'OIL',
-    manufacturerName: 'SealPoint (Synthetic)',
+    manufacturerName: 'SealPoint',
     materialType: 'Spare Part',
     units: ['EA'],
     minPriceCents: 180,
@@ -171,7 +171,7 @@ const SPARE_PART_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'HYD',
-    manufacturerName: 'HydraLink (Synthetic)',
+    manufacturerName: 'HydraLink',
     materialType: 'Spare Part',
     units: ['EA'],
     minPriceCents: 950,
@@ -184,7 +184,7 @@ const SPARE_PART_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'CPL',
-    manufacturerName: 'DriveLine Works (Synthetic)',
+    manufacturerName: 'DriveLine Works',
     materialType: 'Spare Part',
     units: ['EA'],
     minPriceCents: 2_200,
@@ -200,7 +200,7 @@ const SPARE_PART_FAMILIES: readonly ProductFamily[] = [
 const CONSUMABLE_FAMILIES: readonly ProductFamily[] = [
   {
     code: 'DIS',
-    manufacturerName: 'Workshop Supply Co (Synthetic)',
+    manufacturerName: 'Workshop Supply Co',
     materialType: 'Consumable',
     units: ['EA'],
     minPriceCents: 250,
@@ -213,7 +213,7 @@ const CONSUMABLE_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'THR',
-    manufacturerName: 'Workshop Supply Co (Synthetic)',
+    manufacturerName: 'Workshop Supply Co',
     materialType: 'Consumable',
     units: ['EA'],
     minPriceCents: 1_100,
@@ -226,7 +226,7 @@ const CONSUMABLE_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'OIL',
-    manufacturerName: 'Workshop Supply Co (Synthetic)',
+    manufacturerName: 'Workshop Supply Co',
     materialType: 'Consumable',
     units: ['L'],
     minPriceCents: 750,
@@ -239,7 +239,7 @@ const CONSUMABLE_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'GRS',
-    manufacturerName: 'Workshop Supply Co (Synthetic)',
+    manufacturerName: 'Workshop Supply Co',
     materialType: 'Consumable',
     units: ['KG'],
     minPriceCents: 1_200,
@@ -252,7 +252,7 @@ const CONSUMABLE_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'ANT',
-    manufacturerName: 'Workshop Supply Co (Synthetic)',
+    manufacturerName: 'Workshop Supply Co',
     materialType: 'Consumable',
     units: ['EA', 'L'],
     minPriceCents: 650,
@@ -268,7 +268,7 @@ const CONSUMABLE_FAMILIES: readonly ProductFamily[] = [
 const RAW_MATERIAL_FAMILIES: readonly ProductFamily[] = [
   {
     code: 'MSR',
-    manufacturerName: 'Foundry Stock (Synthetic)',
+    manufacturerName: 'Foundry Stock',
     materialType: 'Raw Material',
     units: ['M', 'KG'],
     minPriceCents: 450,
@@ -281,7 +281,7 @@ const RAW_MATERIAL_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'SSF',
-    manufacturerName: 'Foundry Stock (Synthetic)',
+    manufacturerName: 'Foundry Stock',
     materialType: 'Raw Material',
     units: ['KG'],
     minPriceCents: 1_200,
@@ -307,7 +307,7 @@ const RAW_MATERIAL_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'GKT',
-    manufacturerName: 'SealPoint (Synthetic)',
+    manufacturerName: 'SealPoint',
     materialType: 'Raw Material',
     units: ['M', 'KG'],
     minPriceCents: 900,
@@ -323,7 +323,7 @@ const RAW_MATERIAL_FAMILIES: readonly ProductFamily[] = [
 const TOOL_FAMILIES: readonly ProductFamily[] = [
   {
     code: 'PUL',
-    manufacturerName: 'BenchPro Tools (Synthetic)',
+    manufacturerName: 'BenchPro Tools',
     materialType: 'Tool',
     units: ['EA'],
     minPriceCents: 3_500,
@@ -336,7 +336,7 @@ const TOOL_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'TQW',
-    manufacturerName: 'BenchPro Tools (Synthetic)',
+    manufacturerName: 'BenchPro Tools',
     materialType: 'Tool',
     units: ['EA'],
     minPriceCents: 8_500,
@@ -349,7 +349,7 @@ const TOOL_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'CIR',
-    manufacturerName: 'BenchPro Tools (Synthetic)',
+    manufacturerName: 'BenchPro Tools',
     materialType: 'Tool',
     units: ['EA', 'SET'],
     minPriceCents: 1_800,
@@ -362,7 +362,7 @@ const TOOL_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'GRG',
-    manufacturerName: 'BenchPro Tools (Synthetic)',
+    manufacturerName: 'BenchPro Tools',
     materialType: 'Tool',
     units: ['EA'],
     minPriceCents: 2_400,
@@ -375,7 +375,7 @@ const TOOL_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'CAL',
-    manufacturerName: 'BenchPro Tools (Synthetic)',
+    manufacturerName: 'BenchPro Tools',
     materialType: 'Tool',
     units: ['EA'],
     minPriceCents: 2_900,
@@ -388,7 +388,7 @@ const TOOL_FAMILIES: readonly ProductFamily[] = [
   },
   {
     code: 'SOC',
-    manufacturerName: 'BenchPro Tools (Synthetic)',
+    manufacturerName: 'BenchPro Tools',
     materialType: 'Tool',
     units: ['SET'],
     minPriceCents: 4_500,
