@@ -2,7 +2,7 @@
 
 - **Owner** Scaffold and startup agent
 - **Brief** `.github/agents/assignments/material-register-scaffold-agent-brief.md`
-- **Outcome** Pending implementation and verification.
+- **Outcome** Completed; scaffold and startup handed off for downstream integration. Verification evidence is recorded below.
 
 ## Changes and decisions
 
