@@ -46,3 +46,11 @@ Using the VS Code integrated browser (Electron 43.8.9 / Chromium 150) against th
 - In the disposable clone's `task5-unit-rehearsal` branch, added a main-table column using inferred `unitOfMeasure`. After `npm ci` resolved missing local dependencies, `npm run typecheck:ui` and the Compose UI rebuild passed. The fixture rows displayed **EA** and **KG** in the new column. Browser URLs were cache-busted after the UI image changed.
 - Removed the disposable clone, branch, Compose project and volume; the selected Task 5 branch remains available. The unrelated default Compose project was left running.
 - `npm ci` reported four moderate dependency advisories; the existing UI build emitted a non-blocking chunk-size warning. Exact candidate SHA, final `task ci`, review status and any later results belong in the shared scratchpad.
+
+## Retrospective
+
+The assessment ran over its target time. I noticed I ran more CI checks than
+necessary; reducing redundant full-suite reruns would have saved time. For
+future work, I will use focused checks during iteration and reserve full
+`task ci` runs for required candidate checkpoints and changes that warrant a
+rerun.
