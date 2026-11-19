@@ -1,17 +1,26 @@
 import { ActionIcon, Table, Text } from '@mantine/core';
 import { DataTable } from 'mantine-datatable';
 import type { DataTableColumn } from 'mantine-datatable';
-import { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { ReactNode } from 'react';
 import type { MaterialRecord } from './types.ts';
+
+type SortKey = 'materialNumber' | 'updatedAt';
+type SortDirection = 'asc' | 'desc';
 
 type MaterialTableProps = {
   records: MaterialRecord[];
   fetching: boolean;
-  sortBy: 'materialNumber' | 'updatedAt';
-  sortDirection: 'asc' | 'desc';
+  sortBy: SortKey;
+  sortDirection: SortDirection;
   feedback: ReactNode;
-  onSort: (sortBy: 'materialNumber' | 'updatedAt') => void;
+  onSort: (sortBy: SortKey) => void;
 };
 
 const australianDateFormatter = new Intl.DateTimeFormat('en-AU', {
@@ -20,6 +29,46 @@ const australianDateFormatter = new Intl.DateTimeFormat('en-AU', {
   year: 'numeric',
   timeZone: 'Australia/Brisbane',
 });
+
+function SortHeader({
+  label,
+  column,
+  sortBy,
+  sortDirection,
+  onSort,
+}: {
+  label: string;
+  column: SortKey;
+  sortBy: SortKey;
+  sortDirection: SortDirection;
+  onSort: (sortBy: SortKey) => void;
+}) {
+  const active = sortBy === column;
+  const nextDirection = active
+    ? sortDirection === 'asc'
+      ? 'descending'
+      : 'ascending'
+    : column === 'materialNumber'
+      ? 'ascending'
+      : 'descending';
+
+  return (
+    <button
+      type="button"
+      className="material-sort-button"
+      aria-label={`${label}, ${active ? `sorted ${sortDirection === 'asc' ? 'ascending' : 'descending'}` : 'not sorted'}. Activate to sort ${nextDirection}.`}
+      onClick={() => onSort(column)}
+    >
+      <span>{label}</span>
+      <span
+        className={`material-sort-indicator${active ? ' is-active' : ''}`}
+        aria-hidden="true"
+      >
+        {active ? (sortDirection === 'asc' ? '↑' : '↓') : '↕'}
+      </span>
+    </button>
+  );
+}
 
 function StockDetails({ material }: { material: MaterialRecord }) {
   return (
@@ -90,6 +139,30 @@ export function MaterialTable({
       current === materialNumber ? null : materialNumber,
     );
   }, []);
+  const tableRef = useRef<HTMLTableElement | null>(null);
+  const setTableRef = useCallback((table: HTMLTableElement | null) => {
+    tableRef.current = table;
+  }, []);
+
+  // Mantine DataTable does not expose props for its generated header cells.
+  useLayoutEffect(() => {
+    const table = tableRef.current;
+    if (!table) return;
+
+    for (const header of table.querySelectorAll<HTMLTableCellElement>(
+      'th[data-accessor]',
+    )) {
+      if (header.dataset.accessor === sortBy) {
+        header.setAttribute(
+          'aria-sort',
+          sortDirection === 'asc' ? 'ascending' : 'descending',
+        );
+      } else {
+        header.removeAttribute('aria-sort');
+      }
+    }
+  }, [sortBy, sortDirection]);
+
   const columns = useMemo<DataTableColumn<MaterialRecord>[]>(
     () => [
       {
@@ -118,8 +191,15 @@ export function MaterialTable({
       },
       {
         accessor: 'materialNumber',
-        title: 'Material no.',
-        sortable: true,
+        title: (
+          <SortHeader
+            label="Material no."
+            column="materialNumber"
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+            onSort={onSort}
+          />
+        ),
         noWrap: true,
       },
       { accessor: 'description', title: 'Description' },
@@ -137,14 +217,21 @@ export function MaterialTable({
       },
       {
         accessor: 'updatedAt',
-        title: 'Last updated',
-        sortable: true,
+        title: (
+          <SortHeader
+            label="Last updated"
+            column="updatedAt"
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+            onSort={onSort}
+          />
+        ),
         noWrap: true,
         render: ({ updatedAt }) =>
           australianDateFormatter.format(new Date(updatedAt)),
       },
     ],
-    [expandedMaterialNumber, toggleExpansion],
+    [expandedMaterialNumber, onSort, sortBy, sortDirection, toggleExpansion],
   );
 
   return (
@@ -156,14 +243,7 @@ export function MaterialTable({
           records={records}
           columns={columns}
           fetching={fetching}
-          sortStatus={{ columnAccessor: sortBy, direction: sortDirection }}
-          onSortStatusChange={({ columnAccessor }) => {
-            if (columnAccessor === 'materialNumber') {
-              onSort('materialNumber');
-            } else if (columnAccessor === 'updatedAt') {
-              onSort('updatedAt');
-            }
-          }}
+          tableRef={setTableRef}
           rowExpansion={{
             trigger: 'never',
             allowMultiple: false,
