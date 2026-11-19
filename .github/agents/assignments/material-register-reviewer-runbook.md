@@ -9,6 +9,12 @@ Read the [developer escalation and approval rules](../standards/agent-escalation
 
 Own final integrated verification and reviewer-only test files. Coordinate shared harness changes with Task 1 and fixes with the affected owner. Run the complete container exercise on the integrated SHA; distinguish automated and manual results and remove the disposable volume. Fixed example ports must be available and unique when running in parallel.
 
+## Known commit-history artifact
+
+The candidate history includes a commit intended to be squashed into its related fix, but it was inadvertently retained with the placeholder subject `AGENT-SQUASH-THIS-COMMIT-AS-FIX`. Treat it as a documented process artifact, not as a separate application change.
+
+Retain this commit unchanged; do not amend its message or rebase it out. Preserving the original commit protects the exact history and its associated metadata, including the original message, author and committer details and timestamps, and ancestry. Call out this context when discussing the history during review.
+
 ## Fresh clone and repeat startup
 
 From a fresh clone, with a running Docker-compatible engine such as Colima, the Docker CLI and the Compose plugin available, run the following commands.
