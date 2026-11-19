@@ -38,6 +38,7 @@ tasks:
     desc: Validate the merged Docker Compose configuration
     cmds:
       - ./scripts/compose.sh config --quiet
+      - docker compose -f docker/compose-db.yml -f docker/compose-dev.yml config --quiet
 
   container:smoke:
     desc: Build an isolated Compose stack and verify the scaffold through its UI proxy

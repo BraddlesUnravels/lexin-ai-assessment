@@ -39,6 +39,53 @@ For development checks, install Node 24, npm and Go Task, then run `npm ci`
 and `task ci`. CI also requires Docker; its container smoke check uses an
 isolated project and volume.
 
+## Developer mode (hot reload)
+
+On macOS, Linux or WSL, install Node 24 with npm and start Docker with Compose.
+From the repository root, run:
+
+```sh
+npm run dev
+```
+
+Open [http://127.0.0.1:5173/materials](http://127.0.0.1:5173/materials) when
+the command reports **Ready**. No prior `npm ci` or `.env` file is needed.
+Startup checks the installed dependency tree against the lockfile and runs
+`npm ci` only if missing or stale. It starts only PostgreSQL in Docker, waits
+for health, applies pending migrations and runs the existing conflict-safe seed.
+It then starts Express under Node's TypeScript watch mode on port 3000 and
+Vite's React hot-reloading server on port 5173, as separate local processes.
+Vite proxies `/api/trpc` to Express; API edits restart the API, UI edits hot
+reload in the browser. Type checking remains a separate `task ci` check.
+After adding a migration or changing dependencies, restart `npm run dev`.
+Requests during an API restart can briefly fail; retry after it starts again.
+
+Ctrl+C stops both local processes (also stopped if either process exits).
+The database stays running and retains your data. These commands prepare setup
+without running the app, or stop the developer database without deleting data:
+
+```sh
+npm run dev:setup
+npm run dev:db:stop
+```
+
+The developer Compose project name is printed on startup and includes a hash
+of the checkout's absolute path. Its volume is separate from the all-container
+demo and other checkouts; moving a checkout selects a new volume. The database
+is reachable only at `127.0.0.1:5433`, using the local-only credentials in
+`docker/compose-db.yml`. Developer mode sets PG connection variables itself,
+ignoring inherited PG targets; it does not read `.env`.
+The existing API binds to all host interfaces, so use a trusted development
+machine/network. Vite binds to loopback.
+
+Ports never silently change. If a port is occupied, stop its owner or choose
+free ports, using the same overrides on subsequent commands:
+
+```sh
+DEV_DB_PORT=5434 DEV_API_PORT=3001 DEV_UI_PORT=5174 npm run dev
+DEV_DB_PORT=5434 DEV_API_PORT=3001 DEV_UI_PORT=5174 npm run dev:db:stop
+```
+
 ## Design and trade-offs
 
 Nginx serves the React UI and proxies same-origin tRPC requests to Express;
