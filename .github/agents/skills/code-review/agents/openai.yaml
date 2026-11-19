@@ -1,0 +1,14 @@
+interface:
+  display_name: Code Review
+  short_description: Review candidate changes and record findings
+  default_prompt: Use $code-review to review the candidate change and record evidence-based
+    findings.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

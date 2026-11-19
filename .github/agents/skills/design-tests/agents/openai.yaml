@@ -1,0 +1,13 @@
+interface:
+  display_name: Design Tests
+  short_description: Plan and verify tests for changed behaviour
+  default_prompt: Use $design-tests to choose and verify tests for the changed behaviour.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

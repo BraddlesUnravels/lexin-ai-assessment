@@ -1,0 +1,45 @@
+version: '3'
+
+tasks:
+  ci:
+    desc: Run every configured local CI check in order
+    cmds:
+      - task: format:check
+      - task: lint
+      - task: typecheck
+      - task: test:unit
+      # Task 1 adds the completed container exercise as downstream suites become available.
+      - task: build
+      - task: compose:check
+
+  format:check:
+    desc: Check repository formatting without rewriting files
+    cmds:
+      - npm run format:check
+
+  lint:
+    desc: Run the repository ESLint check
+    cmds:
+      - npm run lint
+
+  typecheck:
+    desc: Check API and UI TypeScript projects
+    cmds:
+      - npm run typecheck:api
+      - npm run typecheck:ui
+
+  build:
+    desc: Build the API and UI
+    cmds:
+      - npm run build:api
+      - npm run build:ui
+
+  compose:check:
+    desc: Validate the merged Docker Compose configuration
+    cmds:
+      - ./scripts/compose.sh config --quiet
+
+  test:unit:
+    desc: Run currently available risk-based unit tests
+    cmds:
+      - npm run test:unit
