@@ -3,7 +3,7 @@
 - **Owner:** Final review and documentation agent
 - **Brief:** [Reviewer runbook](../assignments/material-register-reviewer-runbook.md)
 - **Base:** `1a57129c365923df40ce98d0f906ee42def84809`
-- **Outcome:** Integrated checks completed; documentation candidate awaits exact-SHA CI and independent review, tracked in the shared Task 5 scratchpad.
+- **Outcome:** The Task 5 documentation candidate was integrated. This final-review continuation records the portability correction and final verification; exact-SHA CI and independent review are tracked in the shared Task 5 scratchpad.
 
 ## Decisions and changes
 
@@ -13,6 +13,7 @@
 | Escalation | A later-page search must not request the stale term on page 1. | On the original base, typing `bear` then `ingxyz` produced `bearing` page 1 before `bearingxyz` page 1. The developer chose to pause for a Task 4 fix. | Task 4 corrected and tested this behavior; independent review approved `1a57129c365923df40ce98d0f906ee42def84809`. |
 | Resumption | Verify against the integrated correction. | Rebased the clean Task 5 branch onto `main` at `1a57129c365923df40ce98d0f906ee42def84809`; repeated the fresh-volume exercise, SQL/HTTP parity, browser recovery and debounce, failure probe, and Unit rehearsal. | The original typing sequence now produces only the final `bearingxyz` page-1 request. |
 | Documentation | Supply repeatable setup, architecture, trade-offs, improvements and actual AI use. | Added [README.md](../../../README.md); the detailed evidence stays here. Agent records document the accessibility correction, user-directed seed changes and search fix. | Documentation-only candidate; existing application guidance remains in the repository. |
+| Portability follow-up | Keep repository configuration usable across checkouts and machines. | At the Developer's direction, moved the shared `rootDir: "./src"` setting into a repository-root `tsconfig.json`, made both project configs extend it, and copied the base config into the API build image. Audited checked-in paths and normalized the sole absolute local checkout path in the Task 1 record. | Shared root-relative config removes duplicated roots while preserving `dist/api/` and `dist/db/` output paths; runtime configs had no machine-specific absolute paths. |
 
 ## Fresh startup and repeat
 
