@@ -83,6 +83,12 @@
   min-width: 62rem;
 }
 
+/* Feedback is rendered outside DataTable so its recovery buttons remain usable. */
+.material-register-table .mantine-datatable-empty-row,
+.material-register-table .mantine-datatable-empty-state {
+  display: none;
+}
+
 .material-stock-details {
   display: grid;
   grid-template-columns: minmax(18rem, 1.2fr) minmax(17rem, 0.8fr);

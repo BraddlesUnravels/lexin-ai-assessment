@@ -1,7 +1,7 @@
 import { Container, Stack, Title } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTRPC } from '../../../trpc/client.tsx';
 import { MaterialPagination } from '../MaterialPagination.tsx';
 import { MaterialTable } from '../MaterialTable/index.ts';
@@ -22,12 +22,17 @@ export function MaterialsPage() {
   const trpc = useTRPC();
   const { state, setValues } = useMaterialUrlState();
   const normalizedSearch = normalizeSearch(state.search);
-  const [debouncedSearch] = useDebouncedValue(normalizedSearch, 300);
-  const searchSettling = normalizedSearch !== debouncedSearch;
+  // Identity also tracks an edit that returns to the previous search term.
+  const search = useMemo(
+    () => ({ value: normalizedSearch }),
+    [normalizedSearch],
+  );
+  const [debouncedSearch] = useDebouncedValue(search, 300);
+  const searchSettling = search !== debouncedSearch;
   const searchTooLong = normalizedSearch.length > 200;
   const listEnabled = !searchSettling && !searchTooLong;
 
-  const input = buildMaterialsListInput(state, debouncedSearch);
+  const input = buildMaterialsListInput(state, debouncedSearch.value);
   const materialsQuery = useQuery(
     trpc.materials.list.queryOptions(input, { enabled: listEnabled }),
   );
