@@ -2,15 +2,15 @@ version: '3'
 
 tasks:
   ci:
-    desc: Run every configured local CI check in order
+    desc: 'Run CI (developer: Node 24/npm and Go Task; app startup: Docker CLI and Compose only)'
     cmds:
       - task: format:check
       - task: lint
       - task: typecheck
       - task: test:unit
-      # Task 1 adds the completed container exercise as downstream suites become available.
       - task: build
       - task: compose:check
+      - task: container:smoke
 
   format:check:
     desc: Check repository formatting without rewriting files
@@ -38,6 +38,11 @@ tasks:
     desc: Validate the merged Docker Compose configuration
     cmds:
       - ./scripts/compose.sh config --quiet
+
+  container:smoke:
+    desc: Build an isolated Compose stack and verify the scaffold through its UI proxy
+    cmds:
+      - ./scripts/container-smoke.sh
 
   test:unit:
     desc: Run currently available risk-based unit tests

@@ -1,0 +1,25 @@
+name: material-register
+
+services:
+  db:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.db
+    environment:
+      POSTGRES_DB: material_register
+      POSTGRES_USER: material_register
+      POSTGRES_PASSWORD: material_register_local
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -h 127.0.0.1 -p 5432 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"',
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+volumes:
+  pgdata:

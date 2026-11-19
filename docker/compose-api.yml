@@ -1,0 +1,22 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: material_register
+      PGUSER: material_register
+      PGPASSWORD: material_register_local
+    depends_on:
+      db:
+        condition: service_healthy
+    command:
+      [
+        'sh',
+        '-ec',
+        'npm run db:migrate && npm run db:seed && exec node dist/api/server.js',
+      ]
