@@ -1,0 +1,237 @@
+{
+  "id": "b1339dfc-082c-470f-84fa-5288b90a2799",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.materials": {
+      "name": "materials",
+      "schema": "",
+      "columns": {
+        "material_number": {
+          "name": "material_number",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "material_type": {
+          "name": "material_type",
+          "type": "material_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "material_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "manufacturer_name": {
+          "name": "manufacturer_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "manufacturer_part_number": {
+          "name": "manufacturer_part_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unit_of_measure": {
+          "name": "unit_of_measure",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit_price_aud": {
+          "name": "unit_price_aud",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "materials_unit_price_aud_non_negative": {
+          "name": "materials_unit_price_aud_non_negative",
+          "value": "\"materials\".\"unit_price_aud\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.plant_catalogue": {
+      "name": "plant_catalogue",
+      "schema": "",
+      "columns": {
+        "material_number": {
+          "name": "material_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plant_code": {
+          "name": "plant_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity_on_hand": {
+          "name": "quantity_on_hand",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "plant_catalogue_plant_code_idx": {
+          "name": "plant_catalogue_plant_code_idx",
+          "columns": [
+            {
+              "expression": "plant_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "plant_catalogue_material_number_materials_material_number_fk": {
+          "name": "plant_catalogue_material_number_materials_material_number_fk",
+          "tableFrom": "plant_catalogue",
+          "tableTo": "materials",
+          "columnsFrom": [
+            "material_number"
+          ],
+          "columnsTo": [
+            "material_number"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "plant_catalogue_plant_code_plants_plant_code_fk": {
+          "name": "plant_catalogue_plant_code_plants_plant_code_fk",
+          "tableFrom": "plant_catalogue",
+          "tableTo": "plants",
+          "columnsFrom": [
+            "plant_code"
+          ],
+          "columnsTo": [
+            "plant_code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "plant_catalogue_material_number_plant_code_pk": {
+          "name": "plant_catalogue_material_number_plant_code_pk",
+          "columns": [
+            "material_number",
+            "plant_code"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "plant_catalogue_quantity_on_hand_non_negative": {
+          "name": "plant_catalogue_quantity_on_hand_non_negative",
+          "value": "\"plant_catalogue\".\"quantity_on_hand\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.plants": {
+      "name": "plants",
+      "schema": "",
+      "columns": {
+        "plant_code": {
+          "name": "plant_code",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "city": {
+          "name": "city",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.material_status": {
+      "name": "material_status",
+      "schema": "public",
+      "values": [
+        "Active",
+        "Pending Review",
+        "Obsolete"
+      ]
+    },
+    "public.material_type": {
+      "name": "material_type",
+      "schema": "public",
+      "values": [
+        "Spare Part",
+        "Consumable",
+        "Raw Material",
+        "Tool"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
