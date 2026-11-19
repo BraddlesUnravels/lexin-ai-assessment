@@ -19,6 +19,7 @@ Read the standards relevant to your task and apply them from their linked files.
 | [Worktrees, scratchpads, and local CI](.github/agents/standards/agent-worktree-rules.md) | At task start and whenever coordinating with another agent or handing off work.                                                       |
 | [Agent iteration and review](.github/agents/standards/agent-iteration-and-review.md)     | When implementing a change, reviewing a candidate, or resolving findings. Covers readability, modularity, and the definition of done. |
 | [Register testing standard](.github/agents/standards/register-testing-standard.md)       | When designing, implementing, or reviewing Vitest, PostgreSQL, reviewer, or container smoke checks.                                   |
+| [UI conditional rendering rules](.github/agents/standards/ui-conditional-rendering-rules.md) | When writing React JSX conditions, choosing fallback operators, or simplifying display logic. |
 | [Taskfile.yml](Taskfile.yml)                                                             | For the ordered local CI checks. Run `task ci` for completed handoff; Go Task is a developer prerequisite.                                                                 |
 | [Prettier configuration](.prettierrc)                                                    | For the shared formatting rules.                                                                                                      |
 

@@ -2,7 +2,7 @@ import { MantineProvider } from '@mantine/core';
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MaterialTable } from '../../src/ui/features/materials/MaterialTable.tsx';
+import { MaterialTable } from '../../src/ui/features/materials/MaterialTable/index.ts';
 
 describe('material table sorting accessibility', () => {
   let container: HTMLDivElement;

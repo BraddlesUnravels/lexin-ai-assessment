@@ -1,21 +1,22 @@
-import { Alert, Button, Container, Stack, Text, Title } from '@mantine/core';
+import { Container, Stack, Title } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
-import { useCallback } from 'react';
-import type { ReactNode } from 'react';
-import { useTRPC } from '../../trpc/client.tsx';
-import { MaterialPagination } from './MaterialPagination.tsx';
-import { MaterialTable } from './MaterialTable.tsx';
-import { MaterialToolbar } from './MaterialToolbar.tsx';
+import React, { useCallback } from 'react';
+import { useTRPC } from '../../../trpc/client.tsx';
+import { MaterialPagination } from '../MaterialPagination.tsx';
+import { MaterialTable } from '../MaterialTable/index.ts';
+import { MaterialToolbar } from '../MaterialToolbar.tsx';
 import {
   buildMaterialsListInput,
   clearedMaterialUrlValues,
-  getResultRange,
   normalizeSearch,
   useMaterialUrlState,
-} from './url-state.ts';
-import type { MaterialUrlValues } from './url-state.ts';
-import './materials.css';
+} from '../url-state.ts';
+import type { MaterialUrlValues } from '../url-state.ts';
+import { MaterialsFeedback } from './MaterialsFeedback.tsx';
+import { MaterialResultCount } from './MaterialResultCount.tsx';
+import { getNextSortDirection } from './helpers.ts';
+import '../materials.css';
 
 export function MaterialsPage() {
   const trpc = useTRPC();
@@ -36,6 +37,12 @@ export function MaterialsPage() {
   const outOfRange = Boolean(
     result && result.total > 0 && state.page > pageCount,
   );
+  const shouldShowFeedback =
+    searchTooLong ||
+    searchSettling ||
+    materialsQuery.isError ||
+    outOfRange ||
+    result?.total === 0;
   const hasFilters = Boolean(
     normalizedSearch ||
       state.status ||
@@ -63,15 +70,11 @@ export function MaterialsPage() {
 
   const changeSort = useCallback(
     (sortBy: 'materialNumber' | 'updatedAt') => {
-      const sortDirection =
-        state.sortBy === sortBy
-          ? state.sortDirection === 'asc'
-            ? 'desc'
-            : 'asc'
-          : sortBy === 'materialNumber'
-            ? 'asc'
-            : 'desc';
-
+      const sortDirection = getNextSortDirection(
+        state.sortBy,
+        state.sortDirection,
+        sortBy,
+      );
       updateView({ sortBy, sortDirection });
     },
     [state.sortBy, state.sortDirection, updateView],
@@ -91,87 +94,6 @@ export function MaterialsPage() {
   const goToFirstPage = useCallback(() => {
     void setValues({ page: '1' }, { history: 'replace' });
   }, [setValues]);
-
-  let feedback: ReactNode = null;
-
-  if (searchTooLong) {
-    feedback = (
-      <Alert color="red" title="Search is too long">
-        Shorten the search to 200 characters or fewer to load materials.
-      </Alert>
-    );
-  } else if (searchSettling || !listEnabled) {
-    feedback = (
-      <Text role="status" c="dimmed">
-        Updating materials…
-      </Text>
-    );
-  } else if (materialsQuery.isError) {
-    feedback = (
-      <Alert color="red" title="Materials could not be loaded">
-        <Stack align="flex-start" gap="xs">
-          <Text>Check your connection and retry this view.</Text>
-          <Button
-            type="button"
-            variant="light"
-            onClick={() => void materialsQuery.refetch()}
-          >
-            Retry materials
-          </Button>
-        </Stack>
-      </Alert>
-    );
-  } else if (outOfRange) {
-    feedback = (
-      <Stack align="center" gap="xs">
-        <Text>
-          Page {state.page} is past the last page ({pageCount}).
-        </Text>
-        <Button type="button" variant="light" onClick={goToFirstPage}>
-          Go to first page
-        </Button>
-      </Stack>
-    );
-  } else if (result?.total === 0) {
-    feedback = (
-      <Stack align="center" gap="xs">
-        <Text>No matching materials</Text>
-        {hasFilters && (
-          <Button type="button" variant="subtle" onClick={clearFilters}>
-            Clear search and filters
-          </Button>
-        )}
-      </Stack>
-    );
-  }
-
-  let resultCount = '';
-  if (searchTooLong) {
-    resultCount = 'Search is too long';
-  } else if (
-    searchSettling ||
-    materialsQuery.isPending ||
-    materialsQuery.isFetching
-  ) {
-    resultCount = 'Loading materials…';
-  } else if (materialsQuery.isError) {
-    resultCount = 'Materials unavailable';
-  } else if (result) {
-    if (result.total === 0) {
-      resultCount = '0 materials';
-    } else if (result.rows.length === 0) {
-      resultCount = `${result.total} ${result.total === 1 ? 'material' : 'materials'}`;
-    } else {
-      const range = getResultRange(
-        result.page,
-        result.pageSize,
-        result.rows.length,
-      );
-      resultCount = `${range.start}–${range.end} of ${result.total} ${
-        result.total === 1 ? 'material' : 'materials'
-      }`;
-    }
-  }
 
   return (
     <main className="material-register-page">
@@ -222,17 +144,33 @@ export function MaterialsPage() {
             fetching={!listEnabled || materialsQuery.isFetching}
             sortBy={state.sortBy}
             sortDirection={state.sortDirection}
-            feedback={feedback}
             onSort={changeSort}
           />
-          <Text
-            className="material-result-count"
-            size="sm"
-            c="dimmed"
-            role="status"
-          >
-            {resultCount}
-          </Text>
+          {shouldShowFeedback && (
+            <div className="material-table-feedback">
+              <MaterialsFeedback
+                searchTooLong={searchTooLong}
+                searchSettling={searchSettling}
+                hasError={materialsQuery.isError}
+                outOfRange={outOfRange}
+                page={state.page}
+                pageCount={pageCount}
+                isEmpty={result?.total === 0}
+                hasFilters={hasFilters}
+                onRetry={() => void materialsQuery.refetch()}
+                onFirstPage={goToFirstPage}
+                onClear={clearFilters}
+              />
+            </div>
+          )}
+          <MaterialResultCount
+            result={result}
+            searchTooLong={searchTooLong}
+            searchSettling={searchSettling}
+            isPending={materialsQuery.isPending}
+            isFetching={materialsQuery.isFetching}
+            hasError={materialsQuery.isError}
+          />
         </Stack>
       </Container>
     </main>

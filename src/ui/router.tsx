@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router';
 import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
-import { MaterialsPage } from './features/materials/MaterialsPage.tsx';
+import { MaterialsPage } from './features/materials/MaterialsPage/index.ts';
 
 function RootLayout() {
   return (
