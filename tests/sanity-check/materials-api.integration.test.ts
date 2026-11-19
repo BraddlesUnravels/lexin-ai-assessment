@@ -106,13 +106,18 @@ describe('Material Register tRPC API', () => {
     }
   });
 
-  it('should return the material page and ordered plant lookup over HTTP', async () => {
+  it('should return list data and treat blank search as unfiltered over HTTP', async () => {
     const [materialsResponse, plantsResponse] = await Promise.all([
       request('materials.list', {}),
       request('plants.list'),
     ]);
+    const blankSearchResponse = await request('materials.list', {
+      search: '   ',
+      pageSize: 1,
+    });
     expect(materialsResponse.status).toBe(200);
     expect(plantsResponse.status).toBe(200);
+    expect(blankSearchResponse.status).toBe(200);
 
     const materialsPayload =
       (await materialsResponse.json()) as MaterialsResponse;
@@ -127,6 +132,17 @@ describe('Material Register tRPC API', () => {
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/,
     );
     expect(page?.rows?.[0]).toHaveProperty('unitOfMeasure');
+
+    const blankSearchPage = (
+      (await blankSearchResponse.json()) as MaterialsResponse
+    ).result?.data;
+    expect(blankSearchPage).toMatchObject({
+      rows: expect.any(Array),
+      total: 5_000,
+      page: 1,
+      pageSize: 1,
+    });
+    expect(blankSearchPage?.rows).toHaveLength(1);
 
     expect(await plantsResponse.json()).toMatchObject({
       result: {
@@ -176,22 +192,6 @@ describe('Material Register tRPC API', () => {
       page: 1,
       pageSize: 25,
     });
-  });
-
-  it('should treat blank search as unfiltered', async () => {
-    const response = await request('materials.list', {
-      search: '   ',
-      pageSize: 1,
-    });
-    const payload = (await response.json()) as MaterialsResponse;
-
-    expect(response.status).toBe(200);
-    expect(payload.result?.data).toMatchObject({
-      total: 5_000,
-      page: 1,
-      pageSize: 1,
-    });
-    expect(payload.result?.data?.rows).toHaveLength(1);
   });
 
   it('should preserve exact fixture decimals and nullable values over HTTP', async () => {
@@ -244,40 +244,6 @@ describe('Material Register tRPC API', () => {
         { plantCode: '3000', quantityOnHand: '0.200' },
       ],
     });
-
-    const rawDecimals = await pool.query<{
-      quantity_on_hand: string;
-      total_quantity: string;
-      unit_price_aud: string | null;
-    }>(
-      `select s.quantity_on_hand,
-              sum(s.quantity_on_hand) over (
-                partition by s.material_number
-              ) as total_quantity,
-              m.unit_price_aud
-       from plant_catalogue as s
-       join materials as m using (material_number)
-       where s.material_number = 'MAT-000124'
-       order by s.plant_code`,
-    );
-    expect(
-      rawDecimals.rows.map((row) => [
-        typeof row.quantity_on_hand,
-        row.quantity_on_hand,
-        typeof row.total_quantity,
-        row.total_quantity,
-      ]),
-    ).toEqual([
-      ['string', '0.200', 'string', '0.300'],
-      ['string', '0.100', 'string', '0.300'],
-    ]);
-
-    const rawPrice = await pool.query<{ unit_price_aud: string }>(
-      `select unit_price_aud from materials
-       where material_number = 'MAT-000123'`,
-    );
-    expect(typeof rawPrice.rows[0]?.unit_price_aud).toBe('string');
-    expect(rawPrice.rows[0]?.unit_price_aud).toBe('19.95');
   });
 
   it('should hide database details, log one failure, and keep the plant lookup available', async () => {

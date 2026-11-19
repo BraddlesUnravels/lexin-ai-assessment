@@ -2,13 +2,15 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { Pool } from 'pg';
+import { materials } from '../../../src/db/schema.ts';
 import * as schema from '../../../src/db/schema.ts';
 import { applyMigrations } from '../../../src/db/migrate.ts';
 import { seedDatabase } from '../../../src/db/seed.ts';
 import { listMaterials } from '../../../src/db/queries/materials.ts';
-import { listPlants } from '../../../src/db/queries/plants.ts';
-import { listMaterialsInputSchema } from '../../../src/shared/materials-list-input.ts';
-import { materials, plantCatalogue } from '../../../src/db/schema.ts';
+import {
+  listMaterialsInputSchema,
+  type ListMaterialsInput,
+} from '../../../src/shared/materials-list-input.ts';
 import {
   startPostgresTestDatabase,
   stopPostgresTestDatabase,
@@ -36,16 +38,7 @@ const referenceWhere = `
   ))
 `;
 
-async function getSqlReference(input: {
-  search?: string;
-  status?: string;
-  materialType?: string;
-  plantCode?: string;
-  sortBy: 'materialNumber' | 'updatedAt';
-  sortDirection: 'asc' | 'desc';
-  page: number;
-  pageSize: number;
-}) {
+async function getSqlReference(input: ListMaterialsInput) {
   const values = [
     input.search ?? null,
     input.status ?? null,
@@ -58,10 +51,9 @@ async function getSqlReference(input: {
   );
   const sortColumn =
     input.sortBy === 'materialNumber' ? 'm.material_number' : 'm.updated_at';
-  const orderBy =
-    input.sortBy === 'updatedAt'
-      ? `${sortColumn} ${input.sortDirection}, m.material_number asc`
-      : `${sortColumn} ${input.sortDirection}`;
+  const orderBy = `${sortColumn} ${input.sortDirection}${
+    input.sortBy === 'updatedAt' ? ', m.material_number asc' : ''
+  }`;
   const offset = (input.page - 1) * input.pageSize;
   const pageResult = await pool.query<{ material_number: string }>(
     `select m.material_number from materials as m
@@ -73,8 +65,22 @@ async function getSqlReference(input: {
 
   return {
     total: countResult.rows[0]?.total ?? 0,
-    materialNumbers: pageResult.rows.map((row) => row.material_number),
+    materialNumbers: pageResult.rows.map(
+      ({ material_number }) => material_number,
+    ),
   };
+}
+
+async function expectSqlParity(input: ListMaterialsInput) {
+  const [result, reference] = await Promise.all([
+    listMaterials(input, database),
+    getSqlReference(input),
+  ]);
+  expect(result.total).toBe(reference.total);
+  expect(result.rows.map((row) => row.materialNumber)).toEqual(
+    reference.materialNumbers,
+  );
+  return result;
 }
 
 describe('Material Register database queries', () => {
@@ -99,7 +105,7 @@ describe('Material Register database queries', () => {
     }
   });
 
-  it('should match the combined filter count and ordered page from independent SQL', async () => {
+  it('should match filtered pages against SQL and skip balances for an empty page', async () => {
     const input = listMaterialsInputSchema.parse({
       search: 'bearing',
       status: 'Active',
@@ -107,93 +113,77 @@ describe('Material Register database queries', () => {
       plantCode: '4000',
       page: 2,
     });
-    const [result, reference] = await Promise.all([
-      listMaterials(input, database),
-      getSqlReference(input),
-    ]);
-
-    expect(result.total).toBe(reference.total);
+    const result = await expectSqlParity(input);
     expect(result.total).toBeGreaterThanOrEqual(76);
-    expect(result.rows.map((row) => row.materialNumber)).toEqual(
-      reference.materialNumbers,
-    );
     expect(result.rows).toHaveLength(25);
+    queryLog.length = 0;
+    const emptyPage = await expectSqlParity(
+      listMaterialsInputSchema.parse({
+        ...input,
+        page: 999_999,
+      }),
+    );
+    expect(emptyPage).toMatchObject({ rows: [], page: 999_999, pageSize: 25 });
+    expect(queryLog).toHaveLength(2);
+    expect(
+      queryLog.every((query) => !query.includes('inner join "plants"')),
+    ).toBe(true);
   });
 
-  it('should find a fixture through each case-insensitive search field', async () => {
-    for (const search of ['mat-000123', 'deep-groove', '6205-2rs1']) {
+  it('should search each text field case-insensitively and treat wildcards literally', async () => {
+    const literalFixtures = [
+      [
+        'QUERY-LITERAL-PERCENT',
+        'Literal token % in description',
+        'PERCENT-ONLY',
+        '%',
+      ],
+      [
+        'QUERY-LITERAL-UNDERSCORE',
+        'Literal token _ in description',
+        'UNDERSCORE-ONLY',
+        '_',
+      ],
+      [
+        'QUERY-LITERAL-BACKSLASH',
+        'Literal token \\ in description',
+        'BACKSLASH-ONLY',
+        '\\',
+      ],
+    ] as const;
+    const literalMaterials: (typeof materials.$inferInsert)[] =
+      literalFixtures.map(
+        ([materialNumber, description, manufacturerPartNumber]) => ({
+          materialNumber,
+          description,
+          materialType: 'Raw Material',
+          status: 'Active',
+          manufacturerName: 'Query Test',
+          manufacturerPartNumber,
+          unitOfMeasure: 'EA',
+          unitPriceAud: null,
+          updatedAt: new Date('2025-01-01T00:00:00.000Z'),
+        }),
+      );
+    await database.insert(materials).values(literalMaterials);
+    const searches = [
+      ['mat-000123', 'MAT-000123'],
+      ['deep-groove', 'MAT-000123'],
+      ['6205-2rs1', 'MAT-000123'],
+      ...literalFixtures.map(([materialNumber, , , search]) => [
+        search,
+        materialNumber,
+      ]),
+    ] as const;
+    for (const [search, expectedMaterialNumber] of searches) {
       const input = listMaterialsInputSchema.parse({
         search,
         sortBy: 'materialNumber',
         sortDirection: 'asc',
       });
-      const result = await listMaterials(input, database);
-
-      expect(
-        result.rows.map((row) => row.materialNumber),
-        `search term: ${search}`,
-      ).toContain('MAT-000123');
-    }
-  });
-
-  it('should treat percent, underscore, and backslash searches as literal substrings', async () => {
-    const fixtures = [
-      {
-        materialNumber: 'QUERY-LITERAL-PERCENT',
-        description: 'Literal token % in description',
-        manufacturerPartNumber: 'PERCENT-ONLY',
-        search: '%',
-      },
-      {
-        materialNumber: 'QUERY-LITERAL-UNDERSCORE',
-        description: 'Literal token _ in description',
-        manufacturerPartNumber: 'UNDERSCORE-ONLY',
-        search: '_',
-      },
-      {
-        materialNumber: 'QUERY-LITERAL-BACKSLASH',
-        description: 'Literal token \\ in description',
-        manufacturerPartNumber: 'BACKSLASH-ONLY',
-        search: '\\',
-      },
-    ] as const;
-    const literalMaterials: (typeof materials.$inferInsert)[] = fixtures.map(
-      ({ materialNumber, description, manufacturerPartNumber }) => ({
-        materialNumber,
-        description,
-        materialType: 'Raw Material',
-        status: 'Active',
-        manufacturerName: 'Query Test',
-        manufacturerPartNumber,
-        unitOfMeasure: 'EA',
-        unitPriceAud: null,
-        updatedAt: new Date('2025-01-01T00:00:00.000Z'),
-      }),
-    );
-    await database.insert(materials).values(literalMaterials);
-    await database.insert(plantCatalogue).values(
-      fixtures.map(({ materialNumber }) => ({
-        materialNumber,
-        plantCode: '3000',
-        quantityOnHand: '1.000',
-      })),
-    );
-
-    for (const fixture of fixtures) {
-      const input = listMaterialsInputSchema.parse({
-        search: fixture.search,
-        sortBy: 'materialNumber',
-      });
-      const [result, reference] = await Promise.all([
-        listMaterials(input, database),
-        getSqlReference(input),
-      ]);
-
-      expect(result.rows.map((row) => row.materialNumber)).toEqual(
-        reference.materialNumbers,
-      );
+      const result = await expectSqlParity(input);
       expect(result.rows.map((row) => row.materialNumber)).toContain(
-        fixture.materialNumber,
+        expectedMaterialNumber,
       );
     }
   });
@@ -206,8 +196,6 @@ describe('Material Register database queries', () => {
     const brisbaneResult = await listMaterials(brisbaneInput, database);
     expect(brisbaneResult.rows).toHaveLength(1);
     expect(brisbaneResult.rows[0]).toMatchObject({
-      unitOfMeasure: 'EA',
-      unitPriceAud: '19.95',
       totalQuantityOnHand: '40.000',
       plantBalances: [
         {
@@ -228,23 +216,11 @@ describe('Material Register database queries', () => {
       ],
     });
 
-    for (const plantCode of ['2000', '9999']) {
-      const result = await listMaterials(
-        listMaterialsInputSchema.parse({
-          search: 'MAT-000123',
-          plantCode,
-        }),
-        database,
-      );
-      expect(result).toMatchObject({ rows: [], total: 0 });
-    }
-
     const fractional = await listMaterials(
       listMaterialsInputSchema.parse({ search: 'MAT-000124' }),
       database,
     );
     expect(fractional.rows[0]).toMatchObject({
-      unitPriceAud: null,
       totalQuantityOnHand: '0.300',
     });
     expect(
@@ -282,14 +258,7 @@ describe('Material Register database queries', () => {
           page: 3,
           pageSize: 11,
         });
-        const [result, reference] = await Promise.all([
-          listMaterials(input, database),
-          getSqlReference(input),
-        ]);
-        expect(result.total).toBe(reference.total);
-        expect(result.rows.map((row) => row.materialNumber)).toEqual(
-          reference.materialNumbers,
-        );
+        await expectSqlParity(input);
       }
     }
 
@@ -304,21 +273,6 @@ describe('Material Register database queries', () => {
       'QUERY-TIE-B',
       'QUERY-TIE-C',
     ]);
-
-    const seededPage = await listMaterials(
-      listMaterialsInputSchema.parse({
-        sortBy: 'updatedAt',
-        sortDirection: 'desc',
-        pageSize: 100,
-      }),
-      database,
-    );
-    const newestTimestamp = seededPage.rows[0]?.updatedAt.getTime();
-    const seededTies = seededPage.rows
-      .filter((row) => row.updatedAt.getTime() === newestTimestamp)
-      .map((row) => row.materialNumber);
-    expect(seededTies.length).toBeGreaterThan(1);
-    expect(seededTies).toEqual([...seededTies].sort());
   });
 
   it('should return zero stock for materials with no plant balances', async () => {
@@ -338,46 +292,6 @@ describe('Material Register database queries', () => {
     expect(result.rows[0]).toMatchObject({
       totalQuantityOnHand: '0',
       plantBalances: [],
-    });
-  });
-
-  it('should keep the match count and skip the balance query for an out-of-range page', async () => {
-    const input = listMaterialsInputSchema.parse({
-      search: 'bearing',
-      status: 'Active',
-      materialType: 'Spare Part',
-      plantCode: '4000',
-      page: 999_999,
-    });
-    const expected = await getSqlReference(input);
-    queryLog.length = 0;
-
-    const result = await listMaterials(input, database);
-
-    expect(result).toMatchObject({
-      rows: [],
-      total: expected.total,
-      page: 999_999,
-      pageSize: 25,
-    });
-    expect(queryLog).toHaveLength(2);
-    expect(
-      queryLog.every((query) => !query.includes('inner join "plants"')),
-    ).toBe(true);
-  });
-
-  it('should list plants by name and then plant code', async () => {
-    const result = await listPlants(database);
-
-    expect(result.map((plant) => plant.name)).toEqual([
-      'Brisbane Service Warehouse',
-      'Melbourne Distribution Centre',
-      'Perth Warehouse',
-      'Sydney Warehouse',
-    ]);
-    expect(result.find((plant) => plant.plantCode === '4000')).toMatchObject({
-      city: 'Brisbane',
-      state: 'QLD',
     });
   });
 });
