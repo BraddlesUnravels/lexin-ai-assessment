@@ -1,0 +1,19 @@
+# Task 5 · Reviewer test cases
+
+- **Owner:** Final review and documentation agent
+- **Brief:** [Reviewer runbook](../assignments/material-register-reviewer-runbook.md)
+- **Outcome:** Added two reviewer-path UI tests and one reviewer API test for seeded page parity.
+- **Base:** `af06b74cc4fad3aae77840872dfb75a33fa8b713`
+
+## Changes and decisions
+
+| Stage    | Original plan or expectation                                | Change, deviation, improvisation, or assumption                                                                                                                                                               | Reason and evidence                                                                                                                                                                                                            | Impact and outcome                                                                       | Developer decision, if required                                           |
+| -------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Planning | Add selected reviewer-only checks under `tests/reviewers/`. | Selected clear-from-page-3 and stale-page recovery scenarios; assert both URL state and the resulting list request. Added a seeded combined-filter API page check against independently computed SQL results. | The URL helper test checks clearing logic but not the user action; the runbook requires stale-page recovery and preservation of view settings. Existing API tests do not compare a filtered page over HTTP to independent SQL. | Adds three focused cases without changing application code or shared test configuration. | Not required; within Task 5 test ownership and existing Vitest discovery. |
+| Development | Verify clear and stale-page controls reset to page one. | Kept the explicit `page=1` query value in assertions and waited through the search debounce after clear. | The first UI run showed the implementation serializes page one explicitly; the first clear test also observed the expected 300 ms debounce before the replacement list request. | Assertions now reflect the actual URL and request behavior instead of assuming page one is omitted or immediate. | Not required. |
+
+## Review and verification
+
+- **Review outcomes:** Pending independent review.
+- **Checks:** `npm ci` restored the lockfile-pinned dependencies. `npm run test:unit -- tests/reviewers` passed 3/3 tests in 2 files, including the real PostgreSQL/API test. Full `task ci` is pending.
+- **Open items:** Full candidate CI and independent review.
