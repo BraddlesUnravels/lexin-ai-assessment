@@ -16,8 +16,8 @@
 
 ## Review and verification
 
-- **Review outcomes** The first independent review requested changes for missing `aria-sort` and Space activation. Both were fixed with a focused UI regression test and browser verification; independent re-review of the final candidate SHA is pending.
-- **Checks** The four URL-state tests and the sortable-header UI regression passed. `npm run typecheck:ui`, `npm run lint`, `npm run format:check`, `npm run build:ui`, and `git diff --check` passed after the review fix. Final `task ci` remains pending on the updated candidate.
+- **Review outcomes** The first independent review requested changes for missing `aria-sort` and Space activation. Both were fixed with a focused UI regression test and browser verification. The reviewer approved the updated implementation at `773cee83d3cc9824d33893ba9ee114bff899a3ce` and its documentation-only verification commit at `a01f8f4c3e18bdb85dce97a708fab7881fe1f241` with no code findings. Final exact-SHA review outcome is recorded in the shared scratchpad.
+- **Checks** The four URL-state tests and the sortable-header UI regression passed. The final `task ci` passed: format, lint, API/UI typecheck, 24 unit tests, API/UI builds, Compose config, and isolated container smoke. The only build note is Vite’s non-blocking >500 kB chunk warning. The smoke used and removed its isolated project and volume; the existing demo database volume was preserved. Exact head SHA and results are in the shared scratchpad.
 - **Browser verification** Against the seeded app at `http://127.0.0.1:8080`, primarily at desktop width:
   - `/` redirects to `/materials`; a pasted/reloaded bearing URL restored search, filters, sort, page, and rows. `materials.list` and `plants.list` used the same-origin proxy and returned HTTP 200.
   - Numbered navigation, Next, Previous, Skip to start/end, Back history, final-page window, disabled boundary controls, and clear-from-later-page were exercised. Clear reset the four filters and page while retaining the material-number ascending sort.
@@ -28,4 +28,4 @@
   - Sortable headers expose `aria-sort` on the active column and native buttons announce the current and next directions. Space on Last updated selected descending sort; Enter on Material no. selected ascending sort.
   - The stock details now align to the desktop wireframe: the 660 px plant table ends before the total card begins at x=766, with no overlap. The original issue was the main table's 62 rem minimum-width selector applying to the nested plant table.
   - Earlier narrow-width checks confirmed visible controls, focus styling, and horizontal table scrolling; additional mobile-specific refinement was not pursued, per the user's direction that mobile is not an assessment focus.
-- **Open items** Run `task ci` on the updated candidate and obtain independent approval for that exact SHA. Record the SHA and review result in the shared scratchpad.
+- **Open items** None. No implementation or cross-system changes remain. The human integrates approved work into `main`; this branch was not merged.
