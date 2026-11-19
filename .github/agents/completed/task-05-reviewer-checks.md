@@ -3,7 +3,7 @@
 - **Owner:** Final review and documentation agent
 - **Brief:** [Reviewer runbook](../assignments/material-register-reviewer-runbook.md)
 - **Base:** `1a57129c365923df40ce98d0f906ee42def84809`
-- **Outcome:** The Task 5 documentation candidate was integrated. This final-review continuation records the portability correction and final verification; exact-SHA CI and independent review are tracked in the shared Task 5 scratchpad.
+- **Outcome:** The Task 5 documentation candidate passed exact-SHA `task ci` and was integrated. T5-R1 later found that this record incorrectly marked CI pending; this continuation corrects the status, with review outcomes tracked in the shared Task 5 scratchpad.
 
 ## Decisions and changes
 
@@ -15,6 +15,7 @@
 | Documentation | Supply repeatable setup, architecture, trade-offs, improvements and actual AI use. | Added [README.md](../../../README.md); the detailed evidence stays here. Agent records document the accessibility correction, user-directed seed changes and search fix. | Documentation-only candidate; existing application guidance remains in the repository. |
 | Portability follow-up | Keep repository configuration usable across checkouts and machines. | At the Developer's direction, moved the shared `rootDir: "./src"` setting into a repository-root `tsconfig.json`, made both project configs extend it, and copied the base config into the API build image. Audited checked-in paths and normalized the sole absolute local checkout path in the Task 1 record. | Shared root-relative config removes duplicated roots while preserving `dist/api/` and `dist/db/` output paths; runtime configs had no machine-specific absolute paths. |
 | Review follow-up | Keep the integrated completion records accurate. | DEV-R2 approved the portability candidate and advised replacing Task 1's stale “Pending implementation and verification” outcome; updated it to completed, consistent with the checks and downstream handoff in that record. | Advisory A1 resolved; the revised candidate requires a fresh exact-SHA CI run and independent re-review. |
+| Documentation review | Record actual CI outcome for the original documentation candidate. | T5-R1 found this record said exact-SHA CI was pending, although `task ci` passed on `1cbabf268326718736f378d1915a799a27f6ae15`; corrected the outcome above. | The README and walkthrough evidence were supported; re-review this documentation correction. |
 
 ## Fresh startup and repeat
 
