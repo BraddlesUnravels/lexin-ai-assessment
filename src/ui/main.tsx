@@ -1,5 +1,12 @@
+import '@mantine/core/styles.css';
+import 'mantine-datatable/styles.css';
+import { MantineProvider } from '@mantine/core';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { RouterProvider } from 'react-router/dom';
+import { router } from './router.tsx';
+import { queryClient, TRPCProvider, trpcClient } from './trpc/client.tsx';
 
 const rootElement = document.getElementById('root');
 
@@ -9,8 +16,12 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <main>
-      <h1>Material Register scaffold</h1>
-    </main>
+    <MantineProvider defaultColorScheme="light">
+      <QueryClientProvider client={queryClient}>
+        <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+          <RouterProvider router={router} />
+        </TRPCProvider>
+      </QueryClientProvider>
+    </MantineProvider>
   </StrictMode>,
 );

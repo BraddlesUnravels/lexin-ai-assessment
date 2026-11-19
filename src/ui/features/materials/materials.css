@@ -1,0 +1,148 @@
+:root {
+  color: #233247;
+  background: #edf2f8;
+  font-family: var(--mantine-font-family);
+}
+
+.material-register-page {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: #edf2f8;
+}
+
+.material-register-panel {
+  padding: 1.5rem;
+  border: 1px solid #d5deeb;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.material-register-panel h1 {
+  color: #1d2b3d;
+}
+
+.material-toolbar {
+  display: grid;
+  grid-template-columns: minmax(15rem, 2fr) repeat(3, minmax(9rem, 1fr)) auto;
+  align-items: end;
+  gap: 1rem;
+}
+
+.material-clear-filters {
+  align-self: end;
+}
+
+.material-pagination {
+  min-height: 2.75rem;
+}
+
+.material-pagination-pages {
+  flex-wrap: nowrap;
+}
+
+.material-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.material-table-feedback {
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.material-register-table table {
+  min-width: 62rem;
+}
+
+.material-stock-details {
+  display: grid;
+  grid-template-columns: minmax(18rem, 1.2fr) minmax(17rem, 0.8fr);
+  gap: 2rem;
+  padding: 1.25rem 2rem;
+}
+
+.material-stock-summary {
+  align-self: start;
+  padding: 1rem 1.25rem;
+  border: 1px solid #d4dfef;
+  border-radius: 0.5rem;
+  background: #e8f0fc;
+}
+
+.material-disclosure-chevron {
+  display: block;
+  width: 0.55rem;
+  height: 0.55rem;
+  transform: rotate(-45deg);
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transition: transform 120ms ease;
+}
+
+.material-disclosure-chevron.is-expanded {
+  transform: rotate(45deg);
+}
+
+.material-result-count {
+  min-height: 1.5rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 70rem) {
+  .material-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .material-clear-filters {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 42rem) {
+  .material-register-page {
+    padding: 1rem 0.5rem;
+  }
+
+  .material-register-panel {
+    padding: 1rem 0.75rem;
+  }
+
+  .material-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .material-pagination {
+    align-items: flex-start;
+  }
+
+  .material-pagination-pages {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.125rem;
+  }
+
+  .material-pagination-pages button {
+    padding-inline: 0.5rem;
+  }
+
+  .material-stock-details {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .material-disclosure-chevron {
+    transition: none;
+  }
+}
